@@ -28,8 +28,5 @@ def transcribe_audio(model_name):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        model_name = sys.argv[1]
-    else: 
-        model_name = "large"
+    model_name = sys.argv[1] if len(sys.argv) < 2 else 'large'
     transcribe_audio(model_name)
