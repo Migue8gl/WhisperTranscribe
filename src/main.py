@@ -1,10 +1,21 @@
 import os
 import sys
 
-import whisper
+from faster_whisper import WhisperModel
+
+
+def run_faster_whisper(model_name):
+    model = WhisperModel(model_name, download_root="models")
+    print("\nTranscribing...")
+    result = ''
+    segments, _ = model.transcribe("audio/audio.wav")
+    for segment in segments:
+        result += "%s" % (segment.text)
+    return result
 
 
 def transcribe_audio(model_name):
+    result = ''
     try:
         if not os.path.isdir("audio"):
             os.mkdir("audio")
@@ -14,19 +25,20 @@ def transcribe_audio(model_name):
     except KeyboardInterrupt:
         pass
 
-    model = whisper.load_model(model_name, download_root="models")
-    print("\nTranscribing...")
-    result = model.transcribe("audio/audio.wav", fp16=False, verbose=False)
+    result = run_faster_whisper(model_name)
 
     if not os.path.isdir("output"):
         os.mkdir("output")
     with open("output/output.txt", "w") as f:
-        f.write(result["text"])
+        f.write(result)
 
     print("\n----- RESULT SAVED IN OUTPUT DIR -----\n")
-    print(result["text"])
+    print(result)
 
 
 if __name__ == "__main__":
-    model_name = sys.argv[1] if len(sys.argv) < 2 else 'large'
+    if len(sys.argv) < 2:
+        model_name = 'large-v3'  # Default model name
+    else:
+        model_name = sys.argv[1]
     transcribe_audio(model_name)
