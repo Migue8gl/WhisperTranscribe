@@ -10,18 +10,25 @@ def run_faster_whisper(model_name):
     result = ''
     segments, _ = model.transcribe("audio/audio.wav")
     for segment in segments:
-        result += "%s" % (segment.text)
+        result += "[%.2fs -> %.2fs] %s\n" % (segment.start, segment.end,
+                                             segment.text)
     return result
 
 
-def transcribe_audio(model_name):
+def transcribe_audio(model_name, headphones=False):
     result = ''
     try:
         if not os.path.isdir("audio"):
             os.mkdir("audio")
         print('Listening... Press Ctrl+C to stop')
-        os.system(
-            'arecord -vv --format=cd -t wav audio/audio.wav > /dev/null 2>&1')
+        if headphones:
+            os.system(
+                'parec --device=alsa_output.pci-0000_00_1f.3.analog-stereo.monitor --format=s16le | ffmpeg -y -f s16le -ar 44100 -ac 2 -i - -acodec pcm_s16le audio/audio.wav > /dev/null 2>&1'
+            )
+        else:
+            os.system(
+                'parec --device=alsa_input.pci-0000_00_1f.3.analog-stereo --format=s16le | ffmpeg -y -f s16le -ar 44100 -ac 2 -i - -acodec pcm_s16le audio/audio.wav > /dev/null 2>&1'
+            )
     except KeyboardInterrupt:
         pass
 
@@ -37,8 +44,18 @@ def transcribe_audio(model_name):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        model_name = 'large-v3'  # Default model name
-    else:
-        model_name = sys.argv[1]
-    transcribe_audio(model_name)
+    args = sys.argv[1:]  # Skip the script name
+    kwargs = {}
+    for i in range(len(args)):
+        if args[i].startswith('-'):
+            if i + 1 < len(args) and not args[i + 1].startswith('-'):
+                kwargs[args[i]] = args[i + 1]
+            else:
+                kwargs[args[i]] = None
+
+    model_name = kwargs.get(
+        '-m', 'medium')  # Get model name from command line arguments
+    headphones = bool(kwargs.get(
+        '-h', False))  # Get headphones value from command line arguments
+
+    transcribe_audio(model_name, headphones)
