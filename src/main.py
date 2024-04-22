@@ -3,6 +3,14 @@ import sys
 
 from faster_whisper import WhisperModel
 
+models = {
+    't': 'tiny',
+    's': 'small',
+    'b': 'base',
+    'm': 'medium',
+    'l': 'large-v3',
+}
+
 
 def run_faster_whisper(model_name):
     model = WhisperModel(model_name, download_root="models")
@@ -53,9 +61,9 @@ if __name__ == "__main__":
             else:
                 kwargs[args[i]] = None
 
-    model_name = kwargs.get(
-        '-m', 'medium')  # Get model name from command line arguments
+    model_name = kwargs.get('-m',
+                            'm')  # Get model name from command line arguments
     headphones = bool(kwargs.get(
         '-h', False))  # Get headphones value from command line arguments
 
-    transcribe_audio(model_name, headphones)
+    transcribe_audio(models[model_name], headphones)
