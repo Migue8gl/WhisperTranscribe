@@ -31,7 +31,7 @@ def transcribe_audio(model_name, headphones=False):
         print('Listening... Press Ctrl+C to stop')
         if headphones:
             os.system(
-                'parec --device=alsa_output.pci-0000_00_1f.3.analog-stereo.monitor --format=s16le | ffmpeg -y -f s16le -ar 44100 -ac 2 -i - -acodec pcm_s16le audio/audio.wav > /dev/null 2>&1'
+                'parec --device=alsa_output.usb-Device_xxx-xxx.analog-stereo.monitor --format=s16le | ffmpeg -y -f s16le -ar 44100 -ac 2 -i - -acodec pcm_s16le audio/audio.wav > /dev/null 2>&1'
             )
         else:
             os.system(
@@ -42,10 +42,20 @@ def transcribe_audio(model_name, headphones=False):
 
     result = run_faster_whisper(model_name)
 
-    if not os.path.isdir("output"):
-        os.mkdir("output")
-    with open("output/output.txt", "w") as f:
-        f.write(result)
+    output_dir = "output"
+    output_file = os.path.join(output_dir, "output_0.txt")
+
+    if not os.path.isdir(output_dir):
+    	os.mkdir(output_dir)
+
+    # Find the next available output file
+    i = 1
+    while os.path.exists(output_file):
+    	i += 1
+    	output_file = os.path.join(output_dir, f"output_{i}.txt")
+
+    with open(output_file, "w") as f:
+    	f.write(result)
 
     print("\n----- RESULT SAVED IN OUTPUT DIR -----\n")
     print(result)
