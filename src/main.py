@@ -7,6 +7,8 @@ import numpy as np
 import sounddevice as sd
 import soundfile as sf
 from faster_whisper import WhisperModel
+from queue import Queue
+import threading
 
 # Mapping for model size abbreviations
 models = {
@@ -15,6 +17,7 @@ models = {
     "b": "base",
     "m": "medium",
     "l": "large-v3",
+    "d": "distil-large-v2",
 }
 
 
@@ -25,7 +28,7 @@ def record_audio(
     samplerate: int = 44100,
 ):
     """
-    Record audio using sounddevice.
+    Record audio using sounddevice's InputStream for more efficient continuous recording.
 
     Parameters:
     - filename (str): Path to save the recorded audio file.
@@ -56,48 +59,69 @@ def record_audio(
         # Fetch device info for channel and sample rate verification
         device_info = sd.query_devices(device_id, "input")
         default_samplerate = int(device_info["default_samplerate"])
+
         if samplerate != default_samplerate:
             print(
                 f"Specified sample rate {samplerate} Hz not supported. Using default: {default_samplerate} Hz"
             )
             samplerate = default_samplerate
 
-        # Set channels
         channels = min(2, device_info["max_input_channels"])
         print(f"Recording on device: {devices[device_id]['name']} at {samplerate} Hz")
 
-        # Record based on duration setting
-        if duration:
-            frames = int(duration * samplerate)
-            recording = sd.rec(
-                frames=frames,
-                samplerate=samplerate,
-                channels=channels,
-                dtype=np.int16,
-                device=device_id,
-            )
-            sd.wait()
-        else:
-            recordings = []
+        # Create a queue to store the recorded data
+        q = Queue()
+        stop_event = threading.Event()
+        recorded_data = []
+
+        # Callback function to handle incoming audio data
+        def audio_callback(indata, frames, time, status):
+            if status:
+                print(status)
+            q.put(indata.copy())
+
+        # Create an input stream
+        with sd.InputStream(
+            device=device_id,
+            channels=channels,
+            samplerate=samplerate,
+            dtype=np.int16,
+            callback=audio_callback,
+        ):
             print("Recording... Press Ctrl+C to stop.")
+
             try:
-                while True:
-                    chunk = sd.rec(
-                        int(samplerate * 0.5),
-                        samplerate=samplerate,
-                        channels=channels,
-                        dtype=np.int16,
-                        device=device_id,
-                    )
-                    sd.wait()
-                    recordings.append(chunk)
+                # Handle fixed duration recording
+                if duration:
+                    total_frames = int(duration * samplerate)
+                    collected_frames = 0
+
+                    while collected_frames < total_frames:
+                        data = q.get()
+                        recorded_data.append(data)
+                        collected_frames += len(data)
+
+                    # Trim excess data
+                    final_data = np.concatenate(recorded_data)
+                    final_data = final_data[:total_frames]
+
+                # Handle continuous recording
+                else:
+                    while not stop_event.is_set():
+                        data = q.get()
+                        recorded_data.append(data)
+
             except KeyboardInterrupt:
                 print("\nRecording stopped by user.")
-                recording = np.concatenate(recordings, axis=0)
+                stop_event.set()
 
-        # Save the recording
-        sf.write(filename, recording, samplerate)
-        print(f"Recording saved to {filename}")
+            finally:
+                # Combine all recorded data
+                final_data = np.concatenate(recorded_data)
+
+                # Save the recording
+                sf.write(filename, final_data, samplerate)
+                print(f"Recording saved to {filename}")
 
     except Exception as e:
         print(f"Error recording audio: {str(e)}")
@@ -155,13 +179,14 @@ def run_faster_whisper(model_name: str, chunks: List[Dict[str, Any]]) -> str:
     Returns:
         str: The complete transcription result.
     """
-    model = WhisperModel(model_name, download_root="models")
+    model = WhisperModel(model_name, download_root="models", compute_type="float16")
     print("\nTranscribing in batches...")
 
     full_result = ""
     for chunk in chunks:
         print(f"Processing chunk starting at {chunk['start_time']}s...")
         segments, _ = model.transcribe(chunk["file"])
+        print(full_result)
 
         for segment in segments:
             adjusted_start = segment.start + chunk["start_time"]
