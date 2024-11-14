@@ -186,7 +186,6 @@ def run_faster_whisper(model_name: str, chunks: List[Dict[str, Any]]) -> str:
     for chunk in chunks:
         print(f"Processing chunk starting at {chunk['start_time']}s...")
         segments, _ = model.transcribe(chunk["file"])
-        print(full_result)
 
         for segment in segments:
             adjusted_start = segment.start + chunk["start_time"]
