@@ -1,79 +1,247 @@
+import argparse
 import os
-import sys
+import wave
+from typing import Any, Dict, List
 
+import numpy as np
+import sounddevice as sd
+import soundfile as sf
 from faster_whisper import WhisperModel
 
+# Mapping for model size abbreviations
 models = {
-    't': 'tiny',
-    's': 'small',
-    'b': 'base',
-    'm': 'medium',
-    'l': 'large-v3',
+    "t": "tiny",
+    "s": "small",
+    "b": "base",
+    "m": "medium",
+    "l": "large-v3",
 }
 
 
-def run_faster_whisper(model_name):
-    model = WhisperModel(model_name, download_root="models")
-    print("\nTranscribing...")
-    result = ''
-    segments, _ = model.transcribe("audio/audio.wav")
-    for segment in segments:
-        result += "[%.2fs -> %.2fs] %s\n" % (segment.start, segment.end,
-                                             segment.text)
-    return result
+def record_audio(
+    filename: str,
+    headphones: bool = False,
+    duration: int = None,
+    samplerate: int = 44100,
+):
+    """
+    Record audio using sounddevice.
 
-
-def transcribe_audio(model_name, headphones=False):
-    result = ''
+    Parameters:
+    - filename (str): Path to save the recorded audio file.
+    - headphones (bool): If True, tries to use the WH-CH720N device for recording.
+    - duration (int): Recording duration in seconds; if None, recording will continue until stopped.
+    - samplerate (int): Sample rate for recording; if incompatible, falls back to device default.
+    """
     try:
-        if not os.path.isdir("audio"):
-            os.mkdir("audio")
-        print('Listening... Press Ctrl+C to stop')
+        # List available devices
+        devices = sd.query_devices()
+        device_id = None
+
+        # Select device based on headphones parameter
         if headphones:
-            os.system(
-                'parec --device=alsa_output.usb-Device_xxx-xxx.analog-stereo.monitor --format=s16le | ffmpeg -y -f s16le -ar 44100 -ac 2 -i - -acodec pcm_s16le audio/audio.wav > /dev/null 2>&1'
-            )
+            # Loop through devices to find 'WH-CH720N'
+            for i, device in enumerate(devices):
+                if "wh-ch720n" in device["name"].lower():
+                    device_id = i
+                    break
+            if device_id is None:
+                raise ValueError("WH-CH720N headphones not found for recording.")
         else:
-            os.system(
-                'parec --device=alsa_input.pci-0000_00_1f.3.analog-stereo --format=s16le | ffmpeg -y -f s16le -ar 44100 -ac 2 -i - -acodec pcm_s16le audio/audio.wav > /dev/null 2>&1'
+            try:
+                device_id = sd.default.device[0]
+            except AttributeError:
+                raise ValueError("No default input device set in sounddevice")
+
+        # Fetch device info for channel and sample rate verification
+        device_info = sd.query_devices(device_id, "input")
+        default_samplerate = int(device_info["default_samplerate"])
+        if samplerate != default_samplerate:
+            print(
+                f"Specified sample rate {samplerate} Hz not supported. Using default: {default_samplerate} Hz"
             )
-    except KeyboardInterrupt:
-        pass
+            samplerate = default_samplerate
 
-    result = run_faster_whisper(model_name)
+        # Set channels
+        channels = min(2, device_info["max_input_channels"])
+        print(f"Recording on device: {devices[device_id]['name']} at {samplerate} Hz")
 
+        # Record based on duration setting
+        if duration:
+            frames = int(duration * samplerate)
+            recording = sd.rec(
+                frames=frames,
+                samplerate=samplerate,
+                channels=channels,
+                dtype=np.int16,
+                device=device_id,
+            )
+            sd.wait()
+        else:
+            recordings = []
+            print("Recording... Press Ctrl+C to stop.")
+            try:
+                while True:
+                    chunk = sd.rec(
+                        int(samplerate * 0.5),
+                        samplerate=samplerate,
+                        channels=channels,
+                        dtype=np.int16,
+                        device=device_id,
+                    )
+                    sd.wait()
+                    recordings.append(chunk)
+            except KeyboardInterrupt:
+                print("\nRecording stopped by user.")
+                recording = np.concatenate(recordings, axis=0)
+
+        # Save the recording
+        sf.write(filename, recording, samplerate)
+        print(f"Recording saved to {filename}")
+
+    except Exception as e:
+        print(f"Error recording audio: {str(e)}")
+        raise
+
+
+def split_audio(input_file: str, chunk_duration: int = 30) -> List[Dict[str, Any]]:
+    """
+    Split an audio file into chunks of specified duration.
+
+    Args:
+        input_file (str): Path to the input WAV file.
+        chunk_duration (int): Duration of each chunk in seconds.
+
+    Returns:
+        List[Dict[str, Any]]: A list of dictionaries containing file paths and start times of each chunk.
+    """
+    with wave.open(input_file, "rb") as wf:
+        n_channels = wf.getnchannels()
+        sampwidth = wf.getsampwidth()
+        framerate = wf.getframerate()
+
+        frames_per_chunk = int(chunk_duration * framerate)
+        chunks = []
+        chunk_id = 0
+
+        os.makedirs("audio/chunks", exist_ok=True)
+
+        while True:
+            frames = wf.readframes(frames_per_chunk)
+            if not frames:
+                break
+
+            chunk_file = f"audio/chunks/chunk_{chunk_id}.wav"
+            with wave.open(chunk_file, "wb") as chunk_wf:
+                chunk_wf.setnchannels(n_channels)
+                chunk_wf.setsampwidth(sampwidth)
+                chunk_wf.setframerate(framerate)
+                chunk_wf.writeframes(frames)
+
+            chunks.append({"file": chunk_file, "start_time": chunk_id * chunk_duration})
+            chunk_id += 1
+
+    return chunks
+
+
+def run_faster_whisper(model_name: str, chunks: List[Dict[str, Any]]) -> str:
+    """
+    Transcribe audio chunks using the Faster Whisper model.
+
+    Args:
+        model_name (str): Model name or path for Faster Whisper model.
+        chunks (List[Dict[str, Any]]): List of audio chunks with file paths and start times.
+
+    Returns:
+        str: The complete transcription result.
+    """
+    model = WhisperModel(model_name, download_root="models")
+    print("\nTranscribing in batches...")
+
+    full_result = ""
+    for chunk in chunks:
+        print(f"Processing chunk starting at {chunk['start_time']}s...")
+        segments, _ = model.transcribe(chunk["file"])
+
+        for segment in segments:
+            adjusted_start = segment.start + chunk["start_time"]
+            adjusted_end = segment.end + chunk["start_time"]
+            full_result += (
+                f"[{adjusted_start:.2f}s -> {adjusted_end:.2f}s] {segment.text}\n"
+            )
+
+        os.remove(chunk["file"])
+
+    return full_result
+
+
+def transcribe_audio(
+    model_name: str, headphones: bool = False, chunk_duration: int = 30
+) -> None:
+    """
+    Record, split, and transcribe audio, saving the result to a text file.
+
+    Args:
+        model_name (str): The model size identifier (e.g., 'tiny', 'small').
+        headphones (bool): Whether to use headphones as the audio input.
+        chunk_duration (int): Duration in seconds for each audio chunk.
+    """
+    os.makedirs("audio", exist_ok=True)
+    audio_file = "audio/audio.wav"
+    # Record audio using sounddevice
+    record_audio(audio_file, headphones)
+
+    # Split audio and transcribe chunks
+    chunks = split_audio("audio/audio.wav", chunk_duration)
+    result = run_faster_whisper(model_name, chunks)
+
+    # Save result to file
     output_dir = "output"
+    os.makedirs(output_dir, exist_ok=True)
     output_file = os.path.join(output_dir, "output_0.txt")
-
-    if not os.path.isdir(output_dir):
-    	os.mkdir(output_dir)
-
-    # Find the next available output file
     i = 1
     while os.path.exists(output_file):
-    	i += 1
-    	output_file = os.path.join(output_dir, f"output_{i}.txt")
+        output_file = os.path.join(output_dir, f"output_{i}.txt")
+        i += 1
 
     with open(output_file, "w") as f:
-    	f.write(result)
+        f.write(result)
 
     print("\n----- RESULT SAVED IN OUTPUT DIR -----\n")
     print(result)
 
 
+def main() -> None:
+    """
+    Main function to parse arguments and execute transcription.
+    """
+    parser = argparse.ArgumentParser(
+        description="Transcribe audio using Faster Whisper."
+    )
+    parser.add_argument(
+        "-m",
+        "--model",
+        choices=models.keys(),
+        default="m",
+        help="Specify the model size: 't' for tiny, 's' for small, 'b' for base, 'm' for medium, 'l' for large-v3",
+    )
+    parser.add_argument(
+        "-c",
+        "--chunk_duration",
+        type=int,
+        default=30,
+        help="Duration of each audio chunk in seconds (default: 30)",
+    )
+    parser.add_argument(
+        "-d",
+        "--headphones",
+        action="store_true",
+        help="Use headphones as audio input device",
+    )
+    args = parser.parse_args()
+
+    transcribe_audio(models[args.model], args.headphones, args.chunk_duration)
+
+
 if __name__ == "__main__":
-    args = sys.argv[1:]  # Skip the script name
-    kwargs = {}
-    for i in range(len(args)):
-        if args[i].startswith('-'):
-            if i + 1 < len(args) and not args[i + 1].startswith('-'):
-                kwargs[args[i]] = args[i + 1]
-            else:
-                kwargs[args[i]] = None
-
-    model_name = kwargs.get('-m',
-                            'm')  # Get model name from command line arguments
-    headphones = bool(kwargs.get(
-        '-h', False))  # Get headphones value from command line arguments
-
-    transcribe_audio(models[model_name], headphones)
+    main()
