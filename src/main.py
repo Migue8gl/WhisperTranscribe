@@ -1,7 +1,7 @@
 import argparse
 import os
 import wave
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 import sounddevice as sd
@@ -200,7 +200,7 @@ def run_faster_whisper(model_name: str, chunks: List[Dict[str, Any]]) -> str:
 
 
 def transcribe_audio(
-    model_name: str, headphones: bool = False, chunk_duration: int = 30
+    model_name: str, headphones: bool = False, chunk_duration: int = 30, load_audio: Optional[str] = None
 ) -> None:
     """
     Record, split, and transcribe audio, saving the result to a text file.
@@ -209,14 +209,19 @@ def transcribe_audio(
         model_name (str): The model size identifier (e.g., 'tiny', 'small').
         headphones (bool): Whether to use headphones as the audio input.
         chunk_duration (int): Duration in seconds for each audio chunk.
+        load_audio (Optional[str]): Audio file to transcribe. If not provided, recording mode is set.
     """
     os.makedirs("audio", exist_ok=True)
     audio_file = "audio/audio.wav"
-    # Record audio using sounddevice
-    record_audio(audio_file, headphones)
+    
+    if load_audio is None:
+        # Record audio using sounddevice
+        record_audio(audio_file, headphones)
+    else:
+        audio_file = load_audio
 
     # Split audio and transcribe chunks
-    chunks = split_audio("audio/audio.wav", chunk_duration)
+    chunks = split_audio(audio_file, chunk_duration)
     result = run_faster_whisper(model_name, chunks)
 
     # Save result to file
@@ -262,9 +267,15 @@ def main() -> None:
         action="store_true",
         help="Use headphones as audio input device",
     )
+    parser.add_argument(
+        "-l",
+        "--load",
+        type=str,
+        help="Load audio file instead of recording",
+    )
     args = parser.parse_args()
 
-    transcribe_audio(models[args.model], args.headphones, args.chunk_duration)
+    transcribe_audio(models[args.model], args.headphones, args.chunk_duration, args.load)
 
 
 if __name__ == "__main__":
