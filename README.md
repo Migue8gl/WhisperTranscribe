@@ -38,11 +38,11 @@ Command Line Arguments
 
     Record and transcribe audio with default settings:
 
-``python transcribe.py -m m -c 30```
+```python transcribe.py -m m -c 30```
 
 Use headphones to record audio and transcribe:
 
-``python transcribe.py -m m -c 30 -d```
+```python transcribe.py -m m -c 30 -d```
 
 Download audio from YouTube and transcribe:
 
