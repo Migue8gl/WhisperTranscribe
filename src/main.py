@@ -9,6 +9,8 @@ import soundfile as sf
 from faster_whisper import WhisperModel
 from queue import Queue
 import threading
+import yt_dlp
+import re
 
 # Mapping for model size abbreviations
 models = {
@@ -19,6 +21,9 @@ models = {
     "l": "large-v3",
     "d": "distil-large-v2",
 }
+
+# For yt URL detection
+youtube_regex = "^https?:\/\/(?:www\.)?(youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/)|youtu\.be\/)[\w\-]{11}(?:[&?][\w=]*)*$"
 
 
 def record_audio(
@@ -49,7 +54,7 @@ def record_audio(
                     device_id = i
                     break
             if device_id is None:
-                raise ValueError("WH-CH720N headphones not found for recording.")
+                raise ValueError("WH-CH720N headphones not found for recording")
         else:
             try:
                 device_id = sd.default.device[0]
@@ -199,8 +204,41 @@ def run_faster_whisper(model_name: str, chunks: List[Dict[str, Any]]) -> str:
     return full_result
 
 
+def download_audio(audio_url: str):
+    ydl_opts = {
+        "format": "bestaudio/best",  # Download the best audio available
+        "postprocessors": [
+            {
+                "key": "FFmpegExtractAudio",  # Use ffmpeg to extract audio
+                "preferredcodec": "wav",  # Output audio codec (WAV format)
+            }
+        ],
+        "outtmpl": "./audio/audio.%(ext)s",  # Store audio in the './audio' directory
+    }
+    output_file = "./audio/audio.wav"
+    if os.path.exists(output_file):
+        os.remove(output_file)
+    print(f"Existing file {output_file} has been deleted.")
+
+    try:
+        # Initialize yt-dlp and download
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            result = ydl.download([audio_url])
+
+        # Check the result of the download
+        if result == 0:
+            print("Download and conversion completed successfully!")
+        else:
+            print(f"Download failed with error code {result}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+
 def transcribe_audio(
-    model_name: str, headphones: bool = False, chunk_duration: int = 30, load_audio: Optional[str] = None
+    model_name: str,
+    headphones: bool = False,
+    chunk_duration: int = 30,
+    load_audio: Optional[str] = None,
 ) -> None:
     """
     Record, split, and transcribe audio, saving the result to a text file.
@@ -213,12 +251,21 @@ def transcribe_audio(
     """
     os.makedirs("audio", exist_ok=True)
     audio_file = "audio/audio.wav"
-    
+
     if load_audio is None:
         # Record audio using sounddevice
         record_audio(audio_file, headphones)
     else:
-        audio_file = load_audio
+        # Load audio file instead of recording
+        if not isinstance(load_audio, str):
+            raise Exception(
+                "Audio provided is neither a path to an audio file or a link to download it"
+            )
+        if bool(re.match(youtube_regex, load_audio)):
+            download_audio(load_audio)
+            audio_file = audio_file
+        else:
+            audio_file = load_audio
 
     # Split audio and transcribe chunks
     chunks = split_audio(audio_file, chunk_duration)
@@ -275,7 +322,9 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    transcribe_audio(models[args.model], args.headphones, args.chunk_duration, args.load)
+    transcribe_audio(
+        models[args.model], args.headphones, args.chunk_duration, args.load
+    )
 
 
 if __name__ == "__main__":
