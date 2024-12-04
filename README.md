@@ -15,8 +15,7 @@ This project provides a script to record, process, and transcribe audio using th
 - Python 3.10
 - Install the required Python packages:
 
-```bash
-pip install numpy sounddevice soundfile faster-whisper yt-dlp```
+```pip install numpy sounddevice soundfile faster-whisper yt-dlp```
     Faster Whisper Model should be installed for transcription.
 
 
