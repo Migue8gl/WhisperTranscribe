@@ -12,12 +12,11 @@ This project provides a script to record, process, and transcribe audio using th
 
 ## Requirements
 
-- Python 3.7 or higher
+- Python 3.10
 - Install the required Python packages:
 
 ```bash
-pip install numpy sounddevice soundfile faster-whisper yt-dlp
-```
+pip install numpy sounddevice soundfile faster-whisper yt-dlp``
     Faster Whisper Model should be installed for transcription.
 
 
@@ -40,7 +39,7 @@ Command Line Arguments
 
     Record and transcribe audio with default settings:
 
-``python transcribe.py -m m -c 30``
+``python transcribe.py -m m -c 30```
 
 Use headphones to record audio and transcribe:
 
@@ -48,11 +47,11 @@ Use headphones to record audio and transcribe:
 
 Download audio from YouTube and transcribe:
 
-```python transcribe.py -m m -c 30 -l "https://www.youtube.com/watch?v=VIDEO_ID"``
+```python transcribe.py -m m -c 30 -l "https://www.youtube.com/watch?v=VIDEO_ID"``` 
 
 Load an existing audio file for transcription:
 
-    python transcribe.py -m m -c 30 -l "path_to_audio.wav"
+    ```python transcribe.py -m m -c 30 -l "path_to_audio.wav"```
 
 ## Workflow Overview
 
