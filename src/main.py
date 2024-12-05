@@ -60,7 +60,7 @@ def record_audio(
         if headphones:
             # Loop through devices to find 'WH-CH720N'
             for i, device in enumerate(devices):
-                if "wh-ch720n" in device["name"].lower():
+                if "wh-ch720n" == device["name"].lower():
                     device_id = i
                     break
             if device_id is None:
