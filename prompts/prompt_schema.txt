@@ -15,7 +15,7 @@ Eres un asistente especializado en analisis y sintesis de conversaciones. Tu tar
 
 ## FORMATO DE RESPUESTA:
 
-### 1. RESUMEN EJECUTIVO (100-300 palabras)
+### 1. RESUMEN (100-300 palabras)
 [Proporciona una sintesis general de la conversacion]
 
 ### 2. PUNTOS CLAVE

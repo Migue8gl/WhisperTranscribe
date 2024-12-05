@@ -348,7 +348,7 @@ def generate_resume(prompt_file: str, transcription: str):
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=messages,
-            temperature=0,
+            temperature=0.2,
             max_tokens=4000,
             top_p=1.0,
             frequency_penalty=0.0,
@@ -403,10 +403,10 @@ def main() -> None:
         help="Load audio file instead of recording",
     )
     parser.add_argument(
-        "-r",
-        "--resume",
+        "-s",
+        "--summarize",
         action="store_true",
-        help="Use LLM resume functionality",
+        help="Use LLM summarization functionality",
     )
     args = parser.parse_args()
 
