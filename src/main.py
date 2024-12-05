@@ -60,7 +60,10 @@ def record_audio(
         if headphones:
             # Loop through devices to find 'WH-CH720N'
             for i, device in enumerate(devices):
-                if "wh-ch720n" == device["name"].lower():
+                if (
+                    "wh-ch720n" in device["name"].lower()
+                    and device["max_output_channels"] >= 2
+                ):
                     device_id = i
                     break
             if device_id is None:
@@ -290,9 +293,10 @@ def transcribe_audio(
     i = 1
     while os.path.exists(output_file):
         output_file = os.path.join(output_dir, f"output_{i}.txt")
-        if summarize:
-            output_resume_dir = os.path.join(output_dir, f"resume_output_{i}.txt")
         i += 1
+
+    if summarize:
+        output_resume_dir = os.path.join(output_dir, f"resume_output_{i}.txt")
 
     with open(output_file, "w") as f:
         f.write(result)
