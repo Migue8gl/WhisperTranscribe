@@ -4,3 +4,4 @@ venv
 models
 audio
 output
+.env
