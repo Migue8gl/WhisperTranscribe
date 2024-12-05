@@ -1,17 +1,26 @@
 import argparse
 import os
+import re
+import threading
 import wave
-from typing import Any, Dict, List, Optional
+from queue import Queue
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
 
 import numpy as np
 import sounddevice as sd
 import soundfile as sf
-from faster_whisper import WhisperModel
-from queue import Queue
-import threading
 import yt_dlp
-import re
+from dotenv import load_dotenv
+from faster_whisper import WhisperModel
 from openai import OpenAI
+
+if os.path.exists(".env"):
+    load_dotenv(".env")
+OPENAI_API_KEY = os.environ["OPENAI_API_KEY"]
+
 
 # Mapping for model size abbreviations
 models = {
@@ -24,13 +33,13 @@ models = {
 }
 
 # For yt URL detection
-youtube_regex = "^https?:\/\/(?:www\.)?(youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/)|youtu\.be\/)[\w\-]{11}(?:[&?][\w=]*)*$"
+youtube_regex = r"^https?:\/\/(?:www\.)?(youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/)|youtu\.be\/)[\w\-]{11}(?:[&?][\w=]*)*$"
 
 
 def record_audio(
     filename: str,
     headphones: bool = False,
-    duration: int = None,
+    duration: Optional[int] = None,
     samplerate: int = 44100,
 ):
     """
@@ -68,7 +77,7 @@ def record_audio(
 
         if samplerate != default_samplerate:
             print(
-                f"Specified sample rate {samplerate} Hz not supported. Using default: {default_samplerate} Hz"
+                f"Specified sample rate {samplerate} Hz not supported. Using default: {default_samplerate} Hz",
             )
             samplerate = default_samplerate
 
@@ -76,7 +85,7 @@ def record_audio(
         print(f"Recording on device: {devices[device_id]['name']} at {samplerate} Hz")
 
         # Create a queue to store the recorded data
-        q = Queue()
+        q: Queue = Queue()
         stop_event = threading.Event()
         recorded_data = []
 
@@ -212,7 +221,7 @@ def download_audio(audio_url: str):
             {
                 "key": "FFmpegExtractAudio",  # Use ffmpeg to extract audio
                 "preferredcodec": "wav",  # Output audio codec (WAV format)
-            }
+            },
         ],
         "outtmpl": "./audio/audio.%(ext)s",  # Store audio in the './audio' directory
     }
@@ -260,7 +269,7 @@ def transcribe_audio(
         # Load audio file instead of recording
         if not isinstance(load_audio, str):
             raise Exception(
-                "Audio provided is neither a path to an audio file or a link to download it"
+                "Audio provided is neither a path to an audio file or a link to download it",
             )
         if bool(re.match(youtube_regex, load_audio)):
             download_audio(load_audio)
@@ -295,7 +304,7 @@ def transcribe_audio(
     with open(f"resume_{output_file}", "w") as f:
         f.write(resume)
     print(result)
-    
+
 
 def generate_resume(prompt_file: str, transcription: str):
     """
@@ -311,11 +320,10 @@ def generate_resume(prompt_file: str, transcription: str):
     """
     try:
         # Initialize OpenAI client
-        global openapi_key
-        client = OpenAI(api_key=openapi_key)
+        client = OpenAI(api_key=OPENAI_API_KEY)
 
         # Read the prompt template from the file
-        with open(prompt_file, "r", encoding='utf-8') as file:
+        with open(prompt_file, encoding="utf-8") as file:
             prompt_template = file.read()
 
         # Replace the placeholder with the transcription
@@ -325,8 +333,11 @@ def generate_resume(prompt_file: str, transcription: str):
 
         # Create the messages array for the API call
         messages = [
-            {"role": "system", "content": "Eres un asistente especializado en analisis y sintesis de conversaciones. Debes responder de forma esructurada y directamente como te ordende el usuario en su esquema"},
-            {"role": "user", "content": updated_prompt}
+            {
+                "role": "system",
+                "content": "Eres un asistente especializado en analisis y sintesis de conversaciones. Debes responder de forma esructurada y directamente como te ordende el usuario en su esquema",
+            },
+            {"role": "user", "content": updated_prompt},
         ]
 
         # Make the API call
@@ -337,7 +348,7 @@ def generate_resume(prompt_file: str, transcription: str):
             max_tokens=4000,
             top_p=1.0,
             frequency_penalty=0.0,
-            presence_penalty=0.0
+            presence_penalty=0.0,
         )
 
         # Extract and return the response text
@@ -359,7 +370,7 @@ def main() -> None:
     Main function to parse arguments and execute transcription.
     """
     parser = argparse.ArgumentParser(
-        description="Transcribe audio using Faster Whisper."
+        description="Transcribe audio using Faster Whisper.",
     )
     parser.add_argument(
         "-m",
@@ -390,7 +401,10 @@ def main() -> None:
     args = parser.parse_args()
 
     transcribe_audio(
-        models[args.model], args.headphones, args.chunk_duration, args.load
+        models[args.model],
+        args.headphones,
+        args.chunk_duration,
+        args.load,
     )
 
 
