@@ -291,7 +291,7 @@ def transcribe_audio(
     while os.path.exists(output_file):
         output_file = os.path.join(output_dir, f"output_{i}.txt")
         if resume:
-            output_resume = os.path.join(output_dir, f"resume_output_{i}.txt")
+            output_resume_dir = os.path.join(output_dir, f"resume_output_{i}.txt")
         i += 1
 
     with open(output_file, "w") as f:
@@ -305,9 +305,9 @@ def transcribe_audio(
         output_resume = generate_resume(prompt_file, result)
 
         print("\n----- RESUME SAVED IN OUTPUT DIR -----\n")
-        with open(output_resume, "w") as f:
+        with open(output_resume_dir, "w") as f:
             f.write(output_resume)
-        print(result)
+        print(output_resume)
 
 
 def generate_resume(prompt_file: str, transcription: str):
