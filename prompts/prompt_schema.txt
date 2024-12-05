@@ -34,7 +34,7 @@ Eres un asistente especializado en analisis y sintesis de conversaciones. Tu tar
 ### 5. OBSERVACIONES ADICIONALES
 [Cualquier informacion relevante que no encaje en las categorias anteriores]
 
-## EJEMPLO DE USO:
+## TRANSCRIPCION A USAR:
 
 [transcription here]
 
