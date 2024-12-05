@@ -249,7 +249,7 @@ def transcribe_audio(
     model_name: str,
     headphones: bool = False,
     chunk_duration: int = 30,
-    resume: bool = False,
+    summarize: bool = False,
     load_audio: Optional[str] = None,
 ) -> None:
     """
@@ -290,7 +290,7 @@ def transcribe_audio(
     i = 1
     while os.path.exists(output_file):
         output_file = os.path.join(output_dir, f"output_{i}.txt")
-        if resume:
+        if summarize:
             output_resume_dir = os.path.join(output_dir, f"resume_output_{i}.txt")
         i += 1
 
@@ -300,7 +300,7 @@ def transcribe_audio(
     print("\n----- RESULT SAVED IN OUTPUT DIR -----\n")
     print(result)
 
-    if resume:
+    if summarize:
         prompt_file = "./prompts/prompt_schema.txt"
         output_resume = generate_resume(prompt_file, result)
 
@@ -414,7 +414,7 @@ def main() -> None:
         models[args.model],
         args.headphones,
         args.chunk_duration,
-        args.resume,
+        args.summarize,
         args.load,
     )
 
