@@ -224,6 +224,7 @@ def download_audio(audio_url: str):
             },
         ],
         "outtmpl": "./audio/audio.%(ext)s",  # Store audio in the './audio' directory
+        "cookiesfrombrowser": ("firefox",),
     }
     output_file = "./audio/audio.wav"
     if os.path.exists(output_file):
@@ -248,6 +249,7 @@ def transcribe_audio(
     model_name: str,
     headphones: bool = False,
     chunk_duration: int = 30,
+    resume: bool = False,
     load_audio: Optional[str] = None,
 ) -> None:
     """
@@ -288,22 +290,24 @@ def transcribe_audio(
     i = 1
     while os.path.exists(output_file):
         output_file = os.path.join(output_dir, f"output_{i}.txt")
+        if resume:
+            output_resume = os.path.join(output_dir, f"resume_output_{i}.txt")
         i += 1
 
     with open(output_file, "w") as f:
         f.write(result)
-        f.write(f"resume_{result}")
 
     print("\n----- RESULT SAVED IN OUTPUT DIR -----\n")
     print(result)
 
-    prompt_file = "./prompts/prompt_schema.txt"
-    resume = generate_resume(prompt_file, result)
+    if resume:
+        prompt_file = "./prompts/prompt_schema.txt"
+        output_resume = generate_resume(prompt_file, result)
 
-    print("\n----- RESUME SAVED IN OUTPUT DIR -----\n")
-    with open(f"resume_{output_file}", "w") as f:
-        f.write(resume)
-    print(result)
+        print("\n----- RESUME SAVED IN OUTPUT DIR -----\n")
+        with open(output_resume, "w") as f:
+            f.write(output_resume)
+        print(result)
 
 
 def generate_resume(prompt_file: str, transcription: str):
@@ -398,12 +402,19 @@ def main() -> None:
         type=str,
         help="Load audio file instead of recording",
     )
+    parser.add_argument(
+        "-r",
+        "--resume",
+        action="store_true",
+        help="Use LLM resume functionality",
+    )
     args = parser.parse_args()
 
     transcribe_audio(
         models[args.model],
         args.headphones,
         args.chunk_duration,
+        args.resume,
         args.load,
     )
 
