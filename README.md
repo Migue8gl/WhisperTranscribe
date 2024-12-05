@@ -9,6 +9,7 @@ This project provides a script to record, process, and transcribe audio using th
 - **Audio Chunking**: Split long audio files into smaller chunks for efficient transcription.
 - **Transcription**: Use the Faster Whisper model to transcribe the audio chunks.
 - **Output**: Save transcriptions into text files, handling multiple transcription runs.
+- **Summarization**: Generate a concise summary using LLMs capabilities (for now, only OpeanAI), saving the summary into a separate text file.
 
 ## Requirements
 
@@ -16,8 +17,6 @@ This project provides a script to record, process, and transcribe audio using th
 - Install the required Python packages:
 
     `pip install -r requirements.txt`
-
-Faster Whisper Model should be installed for transcription.
 
 ## Usage
 
@@ -33,24 +32,29 @@ Command Line Arguments
     -c, --chunk_duration: Set the duration (in seconds) for each audio chunk. Default is 30 seconds.
     -d, --headphones: Use headphones as the audio input device (e.g., WH-CH720N).
     -l, --load: Load an existing audio file instead of recording. You can provide a URL to download audio or specify a path to a local file.
+    -s --summarize: Use LLM summarization functionality.
 
 ## Example Commands
 
 Record and transcribe audio with default settings:
 
-```python transcribe.py -m m -c 30```
+```python src/main.py -m m -c 30```
 
 Use headphones to record audio and transcribe:
 
-```python transcribe.py -m m -c 30 -d```
+```python src/main.py -m m -c 30 -d```
 
 Download audio from YouTube and transcribe:
 
-```python transcribe.py -m m -c 30 -l "https://www.youtube.com/watch?v=VIDEO_ID"``` 
+```python src/main.py -m m -c 30 -l "https://www.youtube.com/watch?v=VIDEO_ID"``` 
 
 Load an existing audio file for transcription:
 
-```python transcribe.py -m m -c 30 -l "path_to_audio.wav"```
+```python src/main.py -m m -c 30 -l "path_to_audio.wav"```
+
+Record, transcribe and audio:
+
+```python src/main.py -m m -c 30 -s```
 
 ## Workflow Overview
 
