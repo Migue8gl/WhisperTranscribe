@@ -23,7 +23,7 @@ Eres un asistente especializado en analisis y sintesis de conversaciones. Tu tar
 - Participantes: [Lista de participantes y roles]
 - Objetivos: [Lista con vinetas]
 - Decisiones Principales: [Lista con vinetas]
-- Puntos de Discusion Importantes: [Lista con vinetas]
+- Puntos de Discusion Importantes: [Lista con viñetas]
 
 ### 3. MOMENTOS CRITICOS
 [Identifica 3-5 momentos cruciales de la conversacion, incluyendo el contexto y su importancia]
@@ -45,4 +45,4 @@ NOTAS IMPORTANTES:
 - Incluye citas textuales breves cuando sean especialmente relevantes
 - Organiza la informacion en orden de importancia
 - Si alguna seccion no aplica, indicalo con "No se menciono" o "No aplica"
-- Si hay ambiguedades importantes, senalalas
+- Si hay ambiguedades importantes, señalalas
