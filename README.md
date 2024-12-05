@@ -15,7 +15,7 @@ This project provides a script to record, process, and transcribe audio using th
 - Python 3.10
 - Install the required Python packages:
 
-```pip install -r requirements.txt```
+    `pip install -r requirements.txt`
 
 Faster Whisper Model should be installed for transcription.
 
@@ -76,6 +76,7 @@ Load an existing audio file for transcription:
 Transcriptions will be saved in files named output_0.txt, output_1.txt, etc. An example transcription might look like:
 
 [0.00s -> 30.00s] This is an example transcription of the first chunk.
+
 [30.00s -> 60.00s] The second chunk begins here and continues.
 
 ## Model Options
