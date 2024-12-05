@@ -11,6 +11,7 @@ from queue import Queue
 import threading
 import yt_dlp
 import re
+from openai import OpenAI
 
 # Mapping for model size abbreviations
 models = {
@@ -282,9 +283,75 @@ def transcribe_audio(
 
     with open(output_file, "w") as f:
         f.write(result)
+        f.write(f"resume_{result}")
 
     print("\n----- RESULT SAVED IN OUTPUT DIR -----\n")
     print(result)
+
+    prompt_file = "./prompts/prompt_schema.txt"
+    resume = generate_resume(prompt_file, result)
+
+    print("\n----- RESUME SAVED IN OUTPUT DIR -----\n")
+    with open(f"resume_{output_file}", "w") as f:
+        f.write(resume)
+    print(result)
+    
+
+def generate_resume(prompt_file: str, transcription: str):
+    """
+    Loads a prompt template from a file, combines it with a transcription,
+    and generates a summary using OpenAI's API.
+
+    Args:
+        prompt_file (str): Path to the input prompt template file.
+        transcription (str): Transcription text to analyze.
+
+    Returns:
+        Optional[str]: The generated summary or None if an error occurs.
+    """
+    try:
+        # Initialize OpenAI client
+        global openapi_key
+        client = OpenAI(api_key=openapi_key)
+
+        # Read the prompt template from the file
+        with open(prompt_file, "r", encoding='utf-8') as file:
+            prompt_template = file.read()
+
+        # Replace the placeholder with the transcription
+        updated_prompt = prompt_template.replace("[transcription here]", transcription)
+
+        print(updated_prompt)
+
+        # Create the messages array for the API call
+        messages = [
+            {"role": "system", "content": "Eres un asistente especializado en analisis y sintesis de conversaciones. Debes responder de forma esructurada y directamente como te ordende el usuario en su esquema"},
+            {"role": "user", "content": updated_prompt}
+        ]
+
+        # Make the API call
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=messages,
+            temperature=0,
+            max_tokens=4000,
+            top_p=1.0,
+            frequency_penalty=0.0,
+            presence_penalty=0.0
+        )
+
+        # Extract and return the response text
+        if response.choices and len(response.choices) > 0:
+            return response.choices[0].message.content
+        else:
+            return None
+
+    except FileNotFoundError:
+        print(f"Error: Prompt file '{prompt_file}' not found.")
+        return None
+    except Exception as e:
+        print(f"Error during processing: {str(e)}")
+        return None
 
 
 def main() -> None:
