@@ -32,7 +32,7 @@ Command Line Arguments
     -c, --chunk_duration: Set the duration (in seconds) for each audio chunk. Default is 30 seconds.
     -d, --headphones: Use headphones as the audio input device (e.g., WH-CH720N).
     -l, --load: Load an existing audio file instead of recording. You can provide a URL to download audio or specify a path to a local file.
-    -s --summarize: Use LLM summarization functionality.
+    -s, --summarize: Use LLM summarization functionality.
 
 ## Example Commands
 
