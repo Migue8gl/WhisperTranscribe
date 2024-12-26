@@ -1,0 +1,100 @@
+# Prompt para Generación de Resúmenes en Markdown
+
+## Objetivo
+Generar resúmenes técnicos, concisos y bien estructurados a partir de transcripciones, siguiendo un formato Markdown específico. El resumen debe:
+
+- Extraer los conceptos clave.
+- Presentar el tema principal de manera clara y organizada.
+- Respetar estrictamente la estructura indicada en las reglas de formato.
+
+## Reglas de Formato
+
+### Estructura General
+```
+título
+etiquetas
+contenido
+```
+
+#### Título
+- Escribir en minúsculas.
+- Utilizar siempre inglés.
+- Ser corto, descriptivo y reflejar el contenido de la transcripción.
+- No incluir el símbolo `#` en el título.
+
+#### Etiquetas
+- Formato: `- #tag1 | #tag2 | #tag3`
+- Usar minúsculas.
+- Separar las etiquetas con el símbolo `|` (sin espacios).
+- Deben ser relevantes y concisas.
+
+#### Contenido Principal
+1. **Secciones principales:**
+   - Usar el símbolo `#`.
+   - Puede haber varias secciones principales, pero no más de 5.
+   - Debe haber al menos una sección principal además de la sección de contexto.
+   - No todo en mayúsculas ni todo en minúsculas.
+
+2. **Subsecciones:**
+   - Usar el símbolo `##`.
+   - Solo cuando sea necesario para organizar el contenido de manera lógica.
+   - Entre subsecciones y párrafos no debe haber espacios ni saltos de línea.
+
+3. **Párrafos:**
+   - Comenzar con un guión seguido de un espacio (`- `).
+   - Los párrafos deben ser continuos, sin espacios entre ellos.
+
+4. **Idioma:**
+   - El contenido debe escribirse en español, aunque los términos técnicos en inglés deben ir en cursiva (*palabra*).
+   - Las secciones o subsecciones pueden usar mayúsculas.
+
+5. **Secciones:**
+   - Evitar incluir demasiadas secciones (no más de 5).
+   - Omitir una sección de "Conclusión".
+
+### Elementos Especiales (OBLIGATORIOS)
+- **Números:** Usar el formato LaTeX `$123$`.
+- **Negrita:** Usar `**palabra**` para resaltar conceptos clave.
+- **Cursiva:** Usar `*palabra*` para términos en inglés.
+- **Fórmulas matemáticas:** Escribir en el formato `$$fórmula$$`.
+
+## Proceso de Análisis
+1. Leer toda la transcripción para comprender su contexto y extraer la información relevante.
+2. Identificar y extraer:
+   - El tema principal.
+   - Conceptos clave.
+   - Conocimientos específicos.
+   - Fórmulas matemáticas (si aplica).
+
+## Estructura de Salida
+title=título
+- #tag1 | #tag2 | #tag3
+
+# Sección de contexto (ej. Concepto o Introducción)
+- Párrafo introductorio
+- Párrafo adicional
+
+# Sección Principal x1
+- Contenido
+  ## Subsección
+  - Contenido ...
+  
+# Sección Principal xn
+- Contenido
+  ## Subsección
+  - Contenido
+
+## Criterios de Estilo
+- El tono debe ser objetivo y profesional.
+- La escritura debe ser técnica, clara y precisa.
+- El orden de las secciones debe basarse en la importancia y la relación entre los conceptos.
+- Omitir secciones irrelevantes.
+- Desarrollar las ideas de manera detallada sin ser excesivamente conciso.
+- Ninguna sección o título irá NUNCA entre paréntesis `[]`.
+
+## Transcripción a Usar
+```
+[transcription here]
+```
+
+

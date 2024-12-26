@@ -295,9 +295,6 @@ def transcribe_audio(
         output_file = os.path.join(output_dir, f"output_{i}.txt")
         i += 1
 
-    if summarize:
-        output_resume_dir = os.path.join(output_dir, f"resume_output_{i}.txt")
-
     with open(output_file, "w") as f:
         f.write(result)
 
@@ -305,14 +302,22 @@ def transcribe_audio(
     print(result)
 
     if summarize:
-        prompt_file = "./prompts/prompt_schema.txt"
+        prompt_file = "./prompts/prompt_schema_md.txt"
         output_resume = generate_resume(prompt_file, result)
+
+        match = re.search(r"title=(.*)\n", output_resume)
+        if match:
+            title = match.group(1).strip().lower().replace(" ", "_") + ".md"
+            output_resume = re.sub(r"title=.*\n", "", output_resume)
+        else:
+            title = f"resume_output_{i}.md"
+
+        output_resume_dir = os.path.join(output_dir, title)
 
         print("\n----- RESUME SAVED IN OUTPUT DIR -----\n")
         with open(output_resume_dir, "w") as f:
             f.write(output_resume)
-        print(output_resume)
-
+            
 
 def generate_resume(prompt_file: str, transcription: str):
     """
@@ -337,7 +342,6 @@ def generate_resume(prompt_file: str, transcription: str):
         # Replace the placeholder with the transcription
         updated_prompt = prompt_template.replace("[transcription here]", transcription)
 
-        print(updated_prompt)
 
         # Create the messages array for the API call
         messages = [
