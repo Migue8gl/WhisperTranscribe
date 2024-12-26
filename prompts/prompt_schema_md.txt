@@ -23,7 +23,7 @@ contenido
 - No incluir el símbolo `#` en el título.
 
 #### Etiquetas
-- Formato: `- #tag1 | #tag2 | #tag3`
+- Formato: `- #tag1 | #tag2 | #tag3 | #tag4`
 - Usar minúsculas.
 - Separar las etiquetas con el símbolo `|` (sin espacios).
 - Deben ser relevantes y concisas.
@@ -33,7 +33,7 @@ contenido
    - Usar el símbolo `#`.
    - Puede haber varias secciones principales, pero no más de 5.
    - Debe haber al menos una sección principal además de la sección de contexto.
-   - No todo en mayúsculas ni todo en minúsculas.
+   - No se escribe todo en mayúsculas ni todo en minúsculas.
 
 2. **Subsecciones:**
    - Usar el símbolo `##`.
@@ -53,7 +53,7 @@ contenido
    - Omitir una sección de "Conclusión".
 
 ### Elementos Especiales (OBLIGATORIOS)
-- **Números:** Usar el formato LaTeX `$123$`.
+- **Números o variables matemáticas:** Usar el formato LaTeX `$123$`.
 - **Negrita:** Usar `**palabra**` para resaltar conceptos clave.
 - **Cursiva:** Usar `*palabra*` para términos en inglés.
 - **Fórmulas matemáticas:** Escribir en el formato `$$fórmula$$`.
@@ -68,29 +68,108 @@ contenido
 
 ## Estructura de Salida
 title=título
-- #tag1 | #tag2 | #tag3
+- #tag1 | #tag2 | #tag3 | #tag4
 
-# Sección de contexto (ej. Concepto o Introducción)
+# Contexto
 - Párrafo introductorio
 - Párrafo adicional
 
-# Sección Principal x1
+# Sección x1 (elegir un nombre)
 - Contenido
-  ## Subsección
-  - Contenido ...
+## Subsección (elegir un nombre)
+- Contenido ...
   
-# Sección Principal xn
+# Sección xn (elegir un nombre)
 - Contenido
-  ## Subsección
-  - Contenido
+## Subsección (elegir un nombre)
+- Contenido
 
-## Criterios de Estilo
+## Criterios de Estilo y NORMAS IMPORTANTES
 - El tono debe ser objetivo y profesional.
 - La escritura debe ser técnica, clara y precisa.
 - El orden de las secciones debe basarse en la importancia y la relación entre los conceptos.
 - Omitir secciones irrelevantes.
 - Desarrollar las ideas de manera detallada sin ser excesivamente conciso.
-- Ninguna sección o título irá NUNCA entre paréntesis `[]`.
+- Cada sección o subsección tendrá un título propio de lo que se trate.
+- Nunca habrá espacios entre subsecciones y subsecciones (`##` y `##`) o entre subsecciones y sus correspondientes secciones (`##` y `#`). Entre dos secciones sí habrá espacio (IMPORTANTE).
+- Si hay palabras que son nombres propios que se considere que están mal, deben cambiarse por aquello que tenga sentido en el contexto y esté dentro del conocimiento del asistente.
+- Crear listados o enumeraciones en Markdown si se cree que pueden tener sentido.
+- Omite detalles de quién esta explicando algo o si lo que se transcribe es una conversación u charla. Centrarse en el tema explicado.
+- Si se describen lo que podrían ser fórmulas, estas deben crearse usando `$$fórmula$$` para renderizarlas. Si no se conocen las fórmulas o la información es inexacta, completar con conocimiento del asistente.
+- Los tags siempre son en minúsculas y con todas las letras seguidas sin símbolos.
+
+# Ejemplos
+## Correcto
+title=título
+- #tag1 | #tag2 | #tag3 | #tag4
+
+# Contexto
+- Párrafo introductorio
+- Párrafo adicional
+
+# Las bases de las mates 
+- Contenido
+## Axiomas 
+- Contenido ...
+  
+# Números 
+- Contenido
+## Números reales 
+- Contenido
+
+## Incorrecto
+title=título
+- #tag1 | #tag2 | #tag3 | #tag4
+
+# Contexto
+- Párrafo introductorio
+- Párrafo adicional
+# Las bases de las mates 
+- Contenido
+## Axiomas 
+- Contenido ...
+  
+# Números 
+- Contenido
+## Números reales 
+- Contenido
+
+## Incorrecto
+title=título
+- #tag1 | #tag2 | #tag3 | #tag4
+
+# Contexto
+- Párrafo introductorio
+- Párrafo adicional
+
+# Las bases de las mates 
+- Contenido
+
+## Axiomas 
+- Contenido ...
+  
+# Números 
+- Contenido
+## Números reales 
+- Contenido
+
+## Incorrecto
+title=título
+- #tag1 | #tag2 | #tag3 | #tag4
+
+# Contexto
+- Párrafo introductorio
+- Párrafo adicional
+
+# Las bases de las mates 
+- Contenido
+## Axiomas 
+- Contenido ...
+  
+# NÚMEROS 
+- Contenido
+## Números reales 
+- Contenido
 
 ## Transcripción a Usar
 ```

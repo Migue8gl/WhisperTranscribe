@@ -307,7 +307,7 @@ def transcribe_audio(
 
         match = re.search(r"title=(.*)\n", output_resume)
         if match:
-            title = match.group(1).strip().lower().replace(" ", "_") + ".md"
+            title = match.group(1).strip().lower() + ".md"
             output_resume = re.sub(r"title=.*\n", "", output_resume)
         else:
             title = f"resume_output_{i}.md"
@@ -356,7 +356,7 @@ def generate_resume(prompt_file: str, transcription: str):
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=messages,
-            temperature=0.2,
+            temperature=0.15,
             max_tokens=4000,
             top_p=1.0,
             frequency_penalty=0.0,
