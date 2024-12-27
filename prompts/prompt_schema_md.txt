@@ -99,7 +99,7 @@ title=título
 - Los tags siempre son en minúsculas y con todas las letras seguidas sin símbolos.
 
 # Ejemplos
-## Correcto
+---- CORRECTO ----
 title=título
 - #tag1 | #tag2 | #tag3 | #tag4
 
@@ -117,7 +117,7 @@ title=título
 ## Números reales 
 - Contenido
 
-## Incorrecto
+---- INCORRECTO ----
 title=título
 - #tag1 | #tag2 | #tag3 | #tag4
 
@@ -134,7 +134,7 @@ title=título
 ## Números reales 
 - Contenido
 
-## Incorrecto
+---- INCORRECTO ----
 title=título
 - #tag1 | #tag2 | #tag3 | #tag4
 
@@ -153,7 +153,7 @@ title=título
 ## Números reales 
 - Contenido
 
-## Incorrecto
+---- INCORRECTO ----
 title=título
 - #tag1 | #tag2 | #tag3 | #tag4
 
@@ -168,6 +168,25 @@ title=título
   
 # NÚMEROS 
 - Contenido
+## Números reales 
+- Contenido
+
+---- CORRECTO ----
+title=título
+- #tag1 | #tag2 | #tag3 | #tag4
+
+# Contexto
+- Párrafo introductorio
+- Párrafo adicional
+
+# Las bases de las mates 
+- Contenido
+
+## Axiomas 
+- Contenido ...
+# Números 
+- Contenido
+
 ## Números reales 
 - Contenido
 
