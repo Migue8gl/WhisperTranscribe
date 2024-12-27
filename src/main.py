@@ -197,7 +197,7 @@ def run_faster_whisper(model_name: str, chunks: List[Dict[str, Any]]) -> str:
     Returns:
         str: The complete transcription result.
     """
-    model = WhisperModel(model_name, download_root="models", compute_type="float16")
+    model = WhisperModel(model_name, download_root="models")
     print("\nTranscribing in batches...")
 
     full_result = ""
@@ -356,7 +356,7 @@ def generate_resume(prompt_file: str, transcription: str):
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=messages,
-            temperature=0.15,
+            temperature=0.2,
             max_tokens=4000,
             top_p=1.0,
             frequency_penalty=0.0,

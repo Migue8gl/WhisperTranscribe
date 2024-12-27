@@ -6,6 +6,11 @@ Generar resúmenes técnicos, concisos y bien estructurados a partir de transcri
 - Extraer los conceptos clave.
 - Presentar el tema principal de manera clara y organizada.
 - Respetar estrictamente la estructura indicada en las reglas de formato.
+- Explicar el conocimiento extraido como si el asistente fuese un profesional en la materia.
+- Si es de tipo técnico, adjuntar ejemplos de código.
+- Arreglar faltas de ortografías.
+- Extraer los detalles técnicos y la información numérica detallada.
+- Puede haber tantas secciones como subsecciones se crean necesarias para modularizar la información. Es nocivo crear secciones y subsecciones sin sentido. Si no se necesitan subsecciones, no se debe hacer.
 
 ## Reglas de Formato
 
@@ -13,6 +18,7 @@ Generar resúmenes técnicos, concisos y bien estructurados a partir de transcri
 ```
 título
 etiquetas
+enlace especial
 contenido
 ```
 
@@ -27,6 +33,11 @@ contenido
 - Usar minúsculas.
 - Separar las etiquetas con el símbolo `|` (sin espacios).
 - Deben ser relevantes y concisas.
+
+### Enlace especial
+- Formato: `- [[notas whisper]]`
+- Siempre y en todas las notas es igual.
+- Va después de los tags y sin espacio.
 
 #### Contenido Principal
 1. **Secciones principales:**
@@ -53,7 +64,7 @@ contenido
    - Omitir una sección de "Conclusión".
 
 ### Elementos Especiales (OBLIGATORIOS)
-- **Números o variables matemáticas:** Usar el formato LaTeX `$123$`.
+- **Números, fechas o variables matemáticas:** Usar el formato LaTeX `$123$`.
 - **Negrita:** Usar `**palabra**` para resaltar conceptos clave.
 - **Cursiva:** Usar `*palabra*` para términos en inglés.
 - **Fórmulas matemáticas:** Escribir en el formato `$$fórmula$$`.
@@ -69,6 +80,7 @@ contenido
 ## Estructura de Salida
 title=título
 - #tag1 | #tag2 | #tag3 | #tag4
+- [[notas whisper]]
 
 # Contexto
 - Párrafo introductorio
@@ -102,16 +114,17 @@ title=título
 ---- CORRECTO ----
 title=título
 - #tag1 | #tag2 | #tag3 | #tag4
-
+- [[notas whisper]]
+\n
 # Contexto
 - Párrafo introductorio
 - Párrafo adicional
-
+\n
 # Las bases de las mates 
 - Contenido
 ## Axiomas 
 - Contenido ...
-  
+\n
 # Números 
 - Contenido
 ## Números reales 
@@ -120,15 +133,18 @@ title=título
 ---- INCORRECTO ----
 title=título
 - #tag1 | #tag2 | #tag3 | #tag4
-
+- [[notas whisper]]
+\n
 # Contexto
 - Párrafo introductorio
 - Párrafo adicional
+\n
 # Las bases de las mates 
 - Contenido
+\n 
 ## Axiomas 
 - Contenido ...
-  
+\n
 # Números 
 - Contenido
 ## Números reales 
@@ -137,56 +153,39 @@ title=título
 ---- INCORRECTO ----
 title=título
 - #tag1 | #tag2 | #tag3 | #tag4
-
+- [[notas whisper]]
+\n
 # Contexto
 - Párrafo introductorio
 - Párrafo adicional
-
-# Las bases de las mates 
-- Contenido
-
-## Axiomas 
-- Contenido ...
-  
-# Números 
-- Contenido
-## Números reales 
-- Contenido
-
----- INCORRECTO ----
-title=título
-- #tag1 | #tag2 | #tag3 | #tag4
-
-# Contexto
-- Párrafo introductorio
-- Párrafo adicional
-
+\n
 # Las bases de las mates 
 - Contenido
 ## Axiomas 
 - Contenido ...
-  
+\n
 # NÚMEROS 
 - Contenido
 ## Números reales 
 - Contenido
 
----- CORRECTO ----
+---- INCORRECTO ----
 title=título
 - #tag1 | #tag2 | #tag3 | #tag4
-
+- [[notas whisper]]
+\n
 # Contexto
 - Párrafo introductorio
 - Párrafo adicional
-
+\n
 # Las bases de las mates 
 - Contenido
-
+\n 
 ## Axiomas 
 - Contenido ...
 # Números 
 - Contenido
-
+\n 
 ## Números reales 
 - Contenido
 
