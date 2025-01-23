@@ -1,112 +1,72 @@
-# 🎤 Audio Transcriber Pro: Whisper-Powered Transcription
+# 🎙️ Audio Transcription Suite with Faster Whisper
 
-## 🚀 Ultimate Command Cheat Sheet
-
-### 🔥 Top Summarization Examples
-
-**1. Academic Lecture Analysis**
+## 🚀 Quick Start
 ```bash
-python src/main.py -l "lecture.mp3" -m l -s --prompt ./prompts/academic_template.txt
+# List available recording devices
+python src/main.py --list-devices
+
+# Record using device 2 with large model
+python src/main.py -m l -d 2
+
+# Transcribe YouTube video with summarization
+python src/main.py -l "https://youtu.be/EXAMPLE" -m l -s
 ```
-*Outputs:* Detailed chapter summaries + key concepts glossary
 
-**2. Podcast Highlights**
-```bash
-python src/main.py -l "https://youtu.be/podcast123" -m l -s --temperature 0.7
+## 🔧 Full Command Reference
+| Flag | Parameter       | Description                          | Default |
+|------|-----------------|--------------------------------------|---------|
+| `-m` | `--model`       | Whisper model size                   | m       |
+| `-d` | `--device`      | Input device ID                      | Auto    |
+| `-c` | `--chunk-dur`   | Chunk duration (seconds)             | 30      |
+| `-l` | `--load`        | File path/YouTube URL                | None    |
+| `-s` | `--summarize`   | Enable GPT-4 analysis                | Off     |
+
+## 📂 File Structure
 ```
-*Features:* Guest quotes + episode highlights + discussion topics
-
-**3. Meeting Minutes Generation**
-```bash
-python src/main.py -d 3 -c 120 -s --prompt ./prompts/business_meeting.txt
+project-root/
+├── audio/               # Raw recordings/chunks
+├── output/              # Transcripts & summaries
+├── prompts/             # Custom AI templates
+└── models/              # Whisper model cache
 ```
-*Creates:* Action items + Decisions made + Next steps
 
-**4. Interview Analysis**
-```bash
-python src/main.py -l interview.wav -s --max_tokens 2000
-```
-*Produces:* Key insights + Quotes + Sentiment analysis
-
-### 🎛️ Advanced Template Control
-
-**Custom Prompt Template** (`./prompts/custom_template.txt`):
+## 🧠 AI Template Example
+Create `prompts/medical.txt`:
 ```txt
-title=My Custom Analysis
-Analyze this conversation:
-1. Identify main topics
-2. Extract 5 key points
-3. Create timeline of events
-4. Highlight controversial statements
+title=Medical Analysis
+Analyze patient discussion:
+1. List symptoms
+2. Identify medications
+3. Flag concerns
 
 [transcription here]
 ```
 
-**Usage**:
+## 💻 Real-World Usage
+### 1. Conference Recording
 ```bash
-python src/main.py -l audio.mp3 -s --prompt ./prompts/custom_template.txt
+python src/main.py -d 4 -c 120 -s
 ```
+Outputs: Timestamped transcript + bullet-point summary
 
-### 📜 Template Gallery
-
-| Template File              | Use Case                          | Output Features                     |
-|----------------------------|-----------------------------------|--------------------------------------|
-| `legal_discussion.txt`      | Court recordings                  | Timeline, Evidence list             |
-| `medical_consult.txt`       | Doctor-patient talks              | Symptoms list, Treatment plan       |
-| `tech_interview.txt`        | Coding interviews                 | Code challenges, Solution analysis  |
-| `creative_writing.txt`      | Story recordings                  | Character map, Plot structure       |
-
-Create new templates by copying `prompt_schema_md.txt` and modifying the instructions!
-
-### 🌐 Multi-Format Example
-
-**YouTube Tech Review → Markdown Report**
+### 2. Podcast Episode Analysis
 ```bash
-python src/main.py -l "https://youtu.be/tech_review" -m l -s --prompt ./prompts/tech_analysis.txt
+python src/main.py -l "https://youtu.be/PODCAST_ID" -m l
+```
+Process: YouTube → WAV → 30s chunks → Full transcript
+
+### 3. Historical Archive Processing
+```bash
+python src/main.py -l archive_tape.wav -m m -c 45
+```
+Features: Medium model, 45s chunks for context
+
+## ⚠️ Requirements
+1. `.env` file:
+```env
+OPENAI_API_KEY=your_key_here
 ```
 
-*Sample Output* (`output/tech-review-2023.md`):
-```markdown
-## GPU Comparison Analysis - 2023
-
-### Key Specifications
-| Model       | VRAM | Clock Speed | Price  |
-|-------------|------|-------------|--------|
-| RTX 4090    | 24GB | 2.52GHz     | $1599  |
-
-### Performance Highlights
-- 4K gaming: 128 avg FPS in Cyberpunk 2077
-- Thermal max: 72°C under load
-- Value rating: 8.5/10
-
-### Conclusion
-"Best for 4K enthusiasts despite premium pricing"
-```
-
-## 💡 Pro Template Tips
-
-1. **Control Output Format**:
-   ```txt
-   title=Meeting Minutes
-   Format in bullet points with emojis:
-   - 📅 Date: [auto-insert-date]
-   - 🎯 Objectives: [transcription here]
-   ```
-
-2. **Multi-Stage Analysis**:
-   ```txt
-   First analyze sentiment, then extract facts:
-   
-   Sentiment Score: [1-10]
-   Key Facts:
-   1. 
-   2. 
-   ```
-
-3. **Language Control**:
-   ```txt
-   Write in Spanish using markdown:
-   ## Resumen Ejecutivo
-   - Puntos clave
-   - Recomendaciones
-   ```
+2. Hardware:
+- 4GB RAM minimum
+- GPU recommended for large models
