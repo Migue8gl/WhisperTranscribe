@@ -1,94 +1,64 @@
-# Audio Transcription with Faster Whisper
+# 🎤 Audio Transcriber Pro: Whisper-Powered Transcription
 
-This project provides a script to record, process, and transcribe audio using the Faster Whisper model. The workflow includes options to record from your microphone, download audio from YouTube, or load an existing audio file. It then splits the audio into chunks and transcribes them using a Faster Whisper model, finally saving the transcription result in a text file.
+## 🚀 Quick Start
 
-## Features
+1. **Install Requirements**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-- **Audio Recording**: Records audio using `sounddevice` library with an option to use headphones (e.g., WH-CH720N).
-- **Audio Download**: Download audio from a YouTube URL and convert it to WAV format.
-- **Audio Chunking**: Split long audio files into smaller chunks for efficient transcription.
-- **Transcription**: Use the Faster Whisper model to transcribe the audio chunks.
-- **Output**: Save transcriptions into text files, handling multiple transcription runs.
-- **Summarization**: Generate a concise summary using LLMs capabilities (for now, only OpeanAI), saving the summary into a separate text file.
+2. **List Audio Devices**:
+   ```bash
+   python src/main.py --list-devices
+   ```
 
-## Requirements
+3. **Basic Recording**:
+   ```bash
+   python src/main.py -m l -d 2
+   ```
 
-- Python 3.10
-- Install the required Python packages:
+## ✨ Key Features
+- 🎧 Device Selection
+- ⏱ 30-120s Chunking
+- 🌐 YouTube Integration
+- 📝 AI Summarization
 
-    `pip install -r requirements.txt`
+## 🔧 Full Usage
+```bash
+python src/main.py [OPTIONS]
+```
 
-## Usage
+### 🔍 Options Table
+| Short | Long          | Description        |
+|-------|---------------|--------------------|
+| -m    | --model       | Model size (t/s/b/m/l/d) |
+| -d    | --device      | Input device ID    |
 
-You can run the script with various arguments depending on your needs.
-Command Line Arguments
+## 💻 Examples
+### 🎙 Record Audio
+```bash
+python src/main.py -m l -d 2 -c 60
+```
 
-    -m, --model: Specify the model size for transcription. Choices include:
-        t: Tiny
-        s: Small
-        b: Base
-        m: Medium
-        l: Large-v3 (default: m)
-    -c, --chunk_duration: Set the duration (in seconds) for each audio chunk. Default is 30 seconds.
-    -d, --headphones: Use headphones as the audio input device (e.g., WH-CH720N).
-    -l, --load: Load an existing audio file instead of recording. You can provide a URL to download audio or specify a path to a local file.
-    -s, --summarize: Use LLM summarization functionality.
+### 🌐 YouTube Download
+```bash
+python src/main.py -l "https://youtu.be/EXAMPLE"
+```
 
-## Example Commands
+## 📂 Output Files
+```
+output/
+├── transcript_0.txt
+└── summary.md
+```
 
-Record and transcribe audio with default settings:
-
-```python src/main.py -m m -c 30```
-
-Use headphones to record audio and transcribe:
-
-```python src/main.py -m m -c 30 -d```
-
-Download audio from YouTube and transcribe:
-
-```python src/main.py -m m -c 30 -l "https://www.youtube.com/watch?v=VIDEO_ID"``` 
-
-Load an existing audio file for transcription:
-
-```python src/main.py -m m -c 30 -l "path_to_audio.wav"```
-
-Record, transcribe and audio:
-
-```python src/main.py -m m -c 30 -s```
-
-## Workflow Overview
-
-    Audio Recording:
-        The script uses sounddevice to record audio from the default input device or a specified headphone device.
-        The audio is saved as a .wav file in the audio/ directory.
-
-    Audio Download:
-        If a YouTube URL is provided, yt-dlp is used to download the best available audio and convert it to .wav format.
-
-    Audio Chunking:
-        The audio file is split into chunks of a specified duration (default is 30 seconds) to optimize the transcription process.
-
-    Transcription:
-        The Faster Whisper model is used to transcribe each chunk of audio.
-        Transcription includes timestamps and the corresponding transcribed text for each chunk.
-
-    Result Storage:
-        The transcriptions are saved to text files in the output/ directory.
-
-## Example Output
-
-Transcriptions will be saved in files named output_0.txt, output_1.txt, etc. An example transcription might look like:
-
-[0.00s -> 30.00s] This is an example transcription of the first chunk.
-
-[30.00s -> 60.00s] The second chunk begins here and continues.
-
-## Model Options
-
-The faster-whisper model supports various model sizes. You can choose the model based on your hardware capabilities:
-
-    t: Tiny
-    s: Small
-    b: Base
-    m: Medium
-    l: Large-v3 (default)
+## 🌟 Pro Tips
+1. For sample rate errors:
+   ```bash
+   python src/main.py -d 2 -c 60
+   ```
+   
+2. Add OpenAI key:
+   ```env
+   OPENAI_API_KEY=your_key_here
+   ```
