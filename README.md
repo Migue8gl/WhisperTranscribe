@@ -1,5 +1,7 @@
 # 🎙️ Audio Transcription Suite with Faster Whisper
 
+--- NOTE: This proyect should be dockerized to avoid dependencies related to OS, but is not implemented yet ---
+
 ## 🚀 Quick Start
 ```bash
 # List available recording devices
