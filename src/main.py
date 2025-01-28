@@ -150,6 +150,34 @@ def record_audio(
     except Exception as e:
         print(f"Recording error: {str(e)}")
         raise
+        
+def download_audio(audio_url: str):
+    ydl_opts = {
+        "format": "bestaudio/best",  # Download the best audio available
+        "postprocessors": [
+            {
+                "key": "FFmpegExtractAudio",  # Use ffmpeg to extract audio
+                "preferredcodec": "wav",  # Output audio codec (WAV format)
+            },
+        ],
+        "outtmpl": "./audio/audio.%(ext)s",  # Store audio in the './audio' directory
+        "cookiesfrombrowser": ("firefox",),
+    }
+    output_file = "./audio/audio.wav"
+    if os.path.exists(output_file):
+        os.remove(output_file)
+    print(f"Existing file {output_file} has been deleted.")
+    try:
+        # Initialize yt-dlp and download
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            result = ydl.download([audio_url])
+        # Check the result of the download
+        if result == 0:
+            print("Download and conversion completed successfully!")
+        else:
+            print(f"Download failed with error code {result}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 # Rest of the functions remain the same as previous versions
 def split_audio(input_file: str, chunk_duration: int = 30) -> List[Dict[str, Any]]:
