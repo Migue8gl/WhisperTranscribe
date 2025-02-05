@@ -223,6 +223,7 @@ def transcribe_audio(
     chunk_duration: int = 30,
     summarize: bool = False,
     load_audio: Optional[str] = None,
+    output_name: Optional[str] = None
 ) -> None:
     os.makedirs("audio", exist_ok=True)
     audio_file = "audio/audio.wav"
@@ -245,9 +246,12 @@ def transcribe_audio(
     os.makedirs(output_dir, exist_ok=True)
     output_file = os.path.join(output_dir, "output_0.txt")
     i = 1
-    while os.path.exists(output_file):
-        output_file = os.path.join(output_dir, f"output_{i}.txt")
-        i += 1
+    if output_name:
+        output_file = output_name
+    else:
+        while os.path.exists(output_file):
+            output_file = os.path.join(output_dir, f"output_{i}.txt")
+            i += 1
 
     with open(output_file, "w") as f:
         f.write(result)
@@ -303,6 +307,8 @@ def main() -> None:
                       help="Generate AI summary of transcription")
     parser.add_argument("-l", "--load", type=str,
                       help="Load audio file/YouTube URL instead of recording")
+    parser.add_argument("-n", "--name", type=str,
+                      help="Output name for transcription file")
 
     args = parser.parse_args()
 
@@ -316,6 +322,7 @@ def main() -> None:
         chunk_duration=args.chunk_duration,
         summarize=args.summarize,
         load_audio=args.load,
+        output_name=args.name
     )
 
 if __name__ == "__main__":
